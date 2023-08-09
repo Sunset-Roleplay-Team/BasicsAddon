@@ -6,5 +6,6 @@ basadd.key.unlocked=Vehicle unlocked !
 basadd.key.invalid=Invalid key !
 basadd.key.linked.to=%s's key
 basadd.fuel.jerrycan=Jerrycan's fuel : %s
+basadd.key.islocked=This vehicle is locked !
 
 item.dynx.dynamx_basics.fuel_jerrycan.name=Fuel jerrycan

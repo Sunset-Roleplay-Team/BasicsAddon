@@ -5,6 +5,7 @@ import fr.dynamx.addons.basics.client.BasicsAddonController;
 import fr.dynamx.addons.basics.client.InteractionKeyController;
 import fr.dynamx.addons.basics.common.infos.BasicsItemInfo;
 import fr.dynamx.addons.basics.server.CommandBasicsSpawn;
+import fr.dynamx.addons.basics.server.CommandGiveKey;
 import fr.dynamx.addons.basics.utils.FuelJerrycanUtils;
 import fr.dynamx.addons.basics.utils.VehicleKeyUtils;
 import fr.dynamx.api.contentpack.DynamXAddon;
@@ -101,5 +102,6 @@ public class BasicsAddon {
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandBasicsSpawn());
+        event.registerServerCommand(new CommandGiveKey());
     }
 }
