@@ -26,8 +26,9 @@ public class InteractionKeyModule implements IPhysicsModule<AbstractEntityPhysic
 
     public InteractionKeyModule(BaseVehicleEntity<?> entity) {
         this.entity = entity;
+        LicensePlateModule licensePlateModule = entity.getModuleByType(LicensePlateModule.class);
         if (entity.world.isRemote) {
-            controller = new InteractionKeyController(entity, this);
+            controller = new InteractionKeyController(licensePlateModule.getPlate(), this);
         }
     }
 

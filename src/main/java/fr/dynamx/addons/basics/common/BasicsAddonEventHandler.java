@@ -4,6 +4,7 @@ import fr.dynamx.addons.basics.BasicsAddon;
 import fr.dynamx.addons.basics.common.infos.BasicsAddonInfos;
 import fr.dynamx.addons.basics.common.modules.BasicsAddonModule;
 import fr.dynamx.addons.basics.common.modules.InteractionKeyModule;
+import fr.dynamx.addons.basics.common.modules.LicensePlateModule;
 import fr.dynamx.addons.basics.utils.VehicleKeyUtils;
 import fr.dynamx.api.events.PhysicsEntityEvent;
 import fr.dynamx.api.events.VehicleEntityEvent;
@@ -35,9 +36,10 @@ public class BasicsAddonEventHandler {
         if (event.getWorld().isRemote && event.getTarget() == event.getEntity().getRidingEntity() && event.getEntity().getRidingEntity() instanceof BaseVehicleEntity<?>) {
             BaseVehicleEntity<?> entity = (BaseVehicleEntity<?>) event.getEntity().getRidingEntity();
             BasicsAddonModule module = entity.getModuleByType(BasicsAddonModule.class);
+            LicensePlateModule licensePlateModule = entity.getModuleByType(LicensePlateModule.class);
             if (VehicleKeyUtils.isKeyItem(event.getItemStack()) && entity.getControllingPassenger() == event.getEntity()) {
                 if (VehicleKeyUtils.hasLinkedVehicle(event.getItemStack())) {
-                    if (entity.getPersistentID().equals(VehicleKeyUtils.getLinkedVehicle(event.getItemStack()))) {
+                    if (licensePlateModule.getPlate().equals(VehicleKeyUtils.getLinkedVehicle(event.getItemStack()))) {
                         module.setLocked(!module.isLocked());
                     } else {
                         ITextComponent msg = new TextComponentTranslation("basadd.key.invalid");
@@ -54,6 +56,8 @@ public class BasicsAddonEventHandler {
     public static void interactWithCar(VehicleEntityEvent.PlayerInteract event) {
         if (event.getPart() instanceof PartSeat || event.getPart() instanceof PartStorage || event.getPart() instanceof PartDoor) {
             BasicsAddonModule module = event.getEntity().getModuleByType(BasicsAddonModule.class);
+            LicensePlateModule licensePlateModule = event.getEntity().getModuleByType(LicensePlateModule.class);
+            BasicsAddonModule basicsAddonModule = event.getEntity().getModuleByType(BasicsAddonModule.class);
             if (VehicleKeyUtils.isKeyItem(event.getPlayer().getHeldItemMainhand())) {
                 ITextComponent msg;
                 if (!VehicleKeyUtils.hasLinkedVehicle(event.getPlayer().getHeldItemMainhand())) {
@@ -66,11 +70,25 @@ public class BasicsAddonEventHandler {
                         msg.getStyle().setColor(TextFormatting.DARK_BLUE);
                         module.setHasLinkedKey(true);
                     }
-                } else if (event.getEntity().getPersistentID().equals(VehicleKeyUtils.getLinkedVehicle(event.getPlayer().getHeldItemMainhand()))) {
+                } else if (licensePlateModule.getPlate().equals(VehicleKeyUtils.getLinkedVehicle(event.getPlayer().getHeldItemMainhand()))) {
                     module.setLocked(!module.isLocked());
                     if (module.isLocked()) {
                         msg = new TextComponentTranslation("basadd.key.locked");
                         msg.getStyle().setColor(TextFormatting.DARK_RED);
+                        Thread thread = new Thread(() -> {
+                            basicsAddonModule.playKlaxon(true);
+                            try {
+                                Thread.sleep(1000);
+                                basicsAddonModule.playKlaxon(false);
+                                Thread.sleep(1000);
+                                basicsAddonModule.playKlaxon(true);
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            basicsAddonModule.playKlaxon(false);
+                        });
+                        thread.start();
                     } else {
                         msg = new TextComponentTranslation("basadd.key.unlocked");
                         msg.getStyle().setColor(TextFormatting.DARK_GREEN);
@@ -79,10 +97,13 @@ public class BasicsAddonEventHandler {
                     msg = new TextComponentTranslation("basadd.key.invalid");
                     msg.getStyle().setColor(TextFormatting.DARK_RED);
                 }
-                //if(msg != null)
                 event.getPlayer().sendMessage(msg);
                 event.setCanceled(true);
             } else if (module.isLocked()) {
+                ITextComponent msg;
+                msg = new TextComponentTranslation("basadd.key.islocked");
+                msg.getStyle().setColor(TextFormatting.DARK_RED);
+                event.getPlayer().sendMessage(msg);
                 event.setCanceled(true);
             }
         }

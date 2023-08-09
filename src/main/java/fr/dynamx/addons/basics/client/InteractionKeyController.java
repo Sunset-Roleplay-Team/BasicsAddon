@@ -16,11 +16,11 @@ import java.util.List;
 public class InteractionKeyController implements IVehicleController {
     @SideOnly(Side.CLIENT)
     public static final KeyBinding interaction = new KeyBinding("Interaction In Vehicle", Keyboard.KEY_N, "DynamX basics");
-    private final BaseVehicleEntity<?> entity;
+    private final String licensePlate;
     private final InteractionKeyModule module;
 
-    public InteractionKeyController(BaseVehicleEntity<?> entity, InteractionKeyModule module) {
-        this.entity = entity;
+    public InteractionKeyController(String licensePlate, InteractionKeyModule module) {
+        this.licensePlate = licensePlate;
         this.module = module;
         unpress(interaction);
     }
